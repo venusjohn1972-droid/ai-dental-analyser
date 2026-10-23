@@ -384,16 +384,16 @@ Move into the project:
 cd AI_denta_prediction
 2. Create a virtual environment
 Windows
-python -m venv .venv
+py -3.14 -m venv .venv
 
 Activate it:
 
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 macOS/Linux
 python3 -m venv .venv
 source .venv/bin/activate
 3. Install dependencies
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 🔑 Environment Variables
 
 Create a .env file locally.
@@ -414,11 +414,40 @@ Do not commit .env to GitHub.
 
 The repository already ignores sensitive files through .gitignore.
 
+### Initialize the Supabase database
+
+1. Create a Supabase project, then open its **SQL Editor**.
+2. Run the SQL in [`supabase_setup.sql`](./supabase_setup.sql). It creates the assessment and vector-knowledge tables and the `match_documents` function used by the app.
+3. In **Project Settings → API**, copy the Project URL and the `service_role` key into `SUPABASE_URL` and `SUPABASE_KEY` in your local `.env`.
+
+The app calls Supabase from the Streamlit server, so keep the `service_role` key server-side: never put it in frontend code or commit it. The setup enables row-level security and does not grant public client access.
+
+### Configure Google sign-in for local development
+
+The app requires Streamlit's Google OAuth sign-in before it can be used.
+
+1. In Google Cloud Console, create an OAuth client with application type **Web application**.
+2. Add this authorized redirect URI: `http://localhost:8501/oauth2callback`.
+3. Put the client ID and client secret in the ignored local file `.streamlit/secrets.toml`:
+
+```toml
+[auth]
+redirect_uri = "http://localhost:8501/oauth2callback"
+cookie_secret = "replace-with-a-long-random-secret"
+client_id = "your-google-oauth-client-id"
+client_secret = "your-google-oauth-client-secret"
+server_metadata_url = "https://accounts.google.com/.well-known/openid-configuration"
+```
+
+Do not commit or share this file. Use a strong, unique `cookie_secret`.
+
 ▶️ Running the Application
 
 Start the Streamlit application:
 
-streamlit run app.py
+```powershell
+.\.venv\Scripts\streamlit.exe run app.py
+```
 
 The application will normally be available at:
 
@@ -533,4 +562,4 @@ An AI-assisted dental image analysis and retrieval system built using Python, St
 GitHub:
 
 https://github.com/swatijazz1-oss/AI_denta_prediction
-
+python -m streamlit run app.py
