@@ -1,11 +1,13 @@
 import os
 import base64
 
+import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 from google import genai
 
 from database import save_assessment
+from global_prevalence import get_global_prevalence_estimates
 from rag import retrieve_documents
 from web_fallback import web_fallback, format_web_context
 
@@ -1616,6 +1618,73 @@ information was consulted.
                 st.markdown(
                     result_text
                 )
+
+                # =================================================
+                # GLOBAL PREVALENCE CONTEXT
+                # =================================================
+
+                st.subheader(
+                    "🌍 Global disease prevalence context"
+                )
+
+                prevalence_estimates, matched_conditions = (
+                    get_global_prevalence_estimates(result_text)
+                )
+
+                if matched_conditions:
+
+                    st.caption(
+                        "The preliminary explanations mention "
+                        + ", ".join(matched_conditions)
+                        + ". The chart shows published global estimates "
+                        "for context only; it does not confirm a diagnosis "
+                        "or estimate this patient's risk."
+                    )
+
+                else:
+
+                    st.caption(
+                        "No condition-specific estimate was matched to "
+                        "the preliminary explanations, so broader estimates "
+                        "are shown for context. These are not a diagnosis "
+                        "or an estimate of this patient's risk."
+                    )
+
+                prevalence_chart_data = pd.Series(
+                    {
+                        estimate["condition"]: estimate[
+                            "people_affected_billions"
+                        ]
+                        for estimate in prevalence_estimates
+                    },
+                    name="People affected (billions)",
+                )
+
+                st.bar_chart(
+                    prevalence_chart_data,
+                    horizontal=True,
+                    x_label="People affected (billions)",
+                    y_label="Condition",
+                )
+
+                st.caption(
+                    "The severe periodontal disease bar represents a lower "
+                    "bound (more than 1.0 billion cases). Estimates come "
+                    "from different populations and years, may overlap, "
+                    "and are not directly comparable."
+                )
+
+                with st.expander(
+                    "View prevalence data sources"
+                ):
+
+                    for estimate in prevalence_estimates:
+
+                        st.markdown(
+                            f"- **{estimate['condition']}:** "
+                            f"{estimate['estimate']} — "
+                            f"[{estimate['source']}]({estimate['url']})"
+                        )
 
 
                 # =================================================

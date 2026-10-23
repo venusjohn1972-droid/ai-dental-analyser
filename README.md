@@ -126,6 +126,12 @@ Provides a practical recommendation based on the available information.
 
 Highlights symptoms that may require prompt professional evaluation.
 
+8. Global prevalence context
+
+After the preliminary assessment, the application can show a bar chart of WHO-published global estimates related to conditions mentioned in the possible-explanations section. The chart includes links to its sources and clarifies that published population estimates are not a diagnosis or a patient-specific risk estimate.
+
+The displayed estimates describe different populations and years and may overlap. Severe periodontal disease is shown as a lower-bound count, not an exact value.
+
 🔎 Retrieval-Augmented Generation (RAG)
 
 The application uses a local dental knowledge base together with vector similarity search.
